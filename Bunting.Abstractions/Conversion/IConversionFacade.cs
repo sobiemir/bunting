@@ -1,11 +1,13 @@
-﻿namespace Bunting.Abstractions
+﻿using Bunting.Abstractions.Common;
+using Bunting.Abstractions.Interfaces;
+
+namespace Bunting.Abstractions.Conversion
 {
     public interface IConversionFacade
     {
-        public IList<ConversionFormat> GetConverters();
-        public string GetEngineName();
-
-        public IConversionEngine CreateEngine(ConversionFormat format);        
-        public bool IsConversionSupported(ConversionFormat format);
+        IList<ConversionFormat> GetConverters();
+        string GetEngineName();
+        IConversionEngine CreateEngine(IFileConversionService fcService, ConversionOptionsDictionary options);
+        bool IsConversionSupported(ConversionFormat format);
     }
 }

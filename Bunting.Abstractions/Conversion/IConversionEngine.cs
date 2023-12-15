@@ -1,7 +1,7 @@
-﻿namespace Bunting.Abstractions
+﻿namespace Bunting.Abstractions.Conversion
 {
     public interface IConversionEngine
     {
-        Task Run(CancellationToken cancellationToken);
+        Task ConvertAsync(CancellationToken cancellationToken);
     }
 }
