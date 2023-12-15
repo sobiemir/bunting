@@ -1,6 +1,6 @@
-﻿namespace Bunting.Abstractions
+﻿namespace Bunting.Abstractions.Environment
 {
-    public class EnvironmentVariableNotFoundException(string variableName)
+    public sealed class EnvironmentVariableNotFoundException(string variableName)
         : NullReferenceException($"Environment variable {variableName} is not set.")
     {
         public string EnvironmentVariableName { get; } = variableName;
