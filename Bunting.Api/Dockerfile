@@ -4,9 +4,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 RUN apt update -y && \
     apt upgrade -y && \
-    apt install poppler-utils imagemagick -y
+    apt install poppler-utils imagemagick -y && \
+    mkdir -p /tmp/bunting && \
+    chown app /tmp/bunting
 
-ENV DIR_TEMPORARY="/tmp/bunting" \
+ENV TMP_DIRECTORY="/tmp/bunting" \
     BIN_POPPLER_PDFTOPPM="/bin/pdftoppm"
 
 USER app
