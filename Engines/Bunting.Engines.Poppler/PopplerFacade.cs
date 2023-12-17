@@ -1,12 +1,13 @@
 ﻿using Bunting.Abstractions.Common;
 using Bunting.Abstractions.Conversion;
+using Bunting.Abstractions.File;
 using Bunting.Abstractions.Interfaces;
 
 namespace Bunting.Engines.Poppler
 {
     public sealed class PopplerFacade : IConversionFacade
     {
-        public IList<ConversionFormat> GetConverters()
+        public IList<FileConversionDirection> GetConverters()
         {
             return PopplerConfiguration.Converters;
         }
@@ -26,7 +27,7 @@ namespace Bunting.Engines.Poppler
             return new PopplerEngine(fcService, options);
         }
 
-        public bool IsConversionSupported(ConversionFormat format)
+        public bool IsConversionSupported(FileConversionDirection format)
         {
             return PopplerConfiguration.Converters.Contains(format);
         }

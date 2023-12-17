@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Bunting.Abstractions.Common;
 using Bunting.Abstractions.Conversion;
+using Bunting.Abstractions.File;
 using Bunting.Abstractions.Interfaces;
 using CliWrap;
 
@@ -9,17 +10,18 @@ namespace Bunting.Engines.Poppler
     internal sealed class PopplerEngine : IConversionEngine
     {
         public const string CONVERTER_NAME = "poppler";
-        public const string PDFTOPPM_ENVVAR_NAME = "BIN_POPPLER_PDFTOPPM";
 
-        private readonly IFileConversionService _fileConversionService;
-        private readonly PopplerEngineOptionsBuilder _optionsBuilder;
+        private readonly IFileConversionService _fcService;
+        private readonly PopplerOptionsBuilder _optionsBuilder;
 
-        public PopplerEngine(IFileConversionService fileConversionService, ConversionOptionsDictionary options)
+        public PopplerEngine(
+            IFileConversionService fcService,
+            ConversionOptionsDictionary options)
         {
-            var optionsBuilder = new PopplerEngineOptionsBuilder(options);
+            var optionsBuilder = new PopplerOptionsBuilder(options);
 
             _optionsBuilder = optionsBuilder;
-            _fileConversionService = fileConversionService;
+            _fcService = fcService;
         }
 
         public async Task ConvertAsync(CancellationToken cancellationToken)
@@ -31,23 +33,35 @@ namespace Bunting.Engines.Poppler
 
             var arguments = _optionsBuilder.GetArguments();
 
-            var sourceFile = _fileConversionService.GetSourcePath();
-            var targetTile = _fileConversionService.GetTargetPath();
+            var sourceFile = _fcService.GetSourcePath();
+            var targetFile = _fcService.GetTargetPath(false);
 
             arguments.Add(sourceFile);
-            arguments.Add(targetTile);
+            arguments.Add(targetFile);
 
-            var result = await Cli.Wrap(command.Value)
+            var preparedCommand = Cli.Wrap(command.Value)
                 .WithArguments(arguments)
                 .WithStandardOutputPipe(PipeTarget.ToStringBuilder(stdOutBuffer))
-                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer))
+                .WithStandardErrorPipe(PipeTarget.ToStringBuilder(stdErrBuffer));
+
+            var result = await preparedCommand
                 .ExecuteAsync(cancellationToken);
 
             if (result.ExitCode != 0)
-                ;
+            {
+                _fcService.DeleteSource();
+                _fcService.DeleteTarget();
 
-            Console.WriteLine(stdOutBuffer);
-            Console.WriteLine(stdErrBuffer);
+                throw new FileConversionException(
+                    code: result.ExitCode,
+                    message: stdErrBuffer.ToString(),
+                    engine: CONVERTER_NAME,
+                    command: command.Value,
+                    arguments: preparedCommand.Arguments);
+            }
+
+            _fcService.DeleteSource();
+            _fcService.DeleteTarget();
         }
     }
 }

@@ -1,16 +1,20 @@
-﻿using Bunting.Abstractions.Conversion;
-using Bunting.Abstractions.Media;
+﻿using Bunting.Abstractions.File;
 
 namespace Bunting.Abstractions.Interfaces
 {
     public interface IFileConversionService
     {
-        MediaFormat GetSourceMediaFormat();
-        MediaFormat GetTargetMediaFormat();
+        FileExtension GetSourceMediaFormat();
+        FileExtension GetTargetMediaFormat();
         
-        ConversionFormat GetConversionFormat();
+        FileConversionDirection GetConversionFormat();
 
-        string GetSourcePath();
-        string GetTargetPath();
+        string GetSourcePath(bool withExtension = true);
+        string GetTargetPath(bool withExtension = true);
+
+
+        void DeleteSource();
+        void DeleteTarget();
+        Task<MemoryStream> LoadAndDeleteTargetAsync(CancellationToken cancellationToken);
     }
 }

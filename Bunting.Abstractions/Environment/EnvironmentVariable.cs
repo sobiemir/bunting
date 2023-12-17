@@ -1,19 +1,15 @@
-﻿namespace Bunting.Abstractions.Environment
+﻿using Bunting.Abstractions.Kernel;
+
+namespace Bunting.Abstractions.Environment
 {
-    public record EnvironmentVariable
+    public class EnvironmentVariable
+        : UniqueKeyEnumerationClass<EnvironmentVariable, string>
     {
         public static readonly EnvironmentVariable TMP_DIRECTORY = new(nameof(TMP_DIRECTORY));
 
-        public string Name { get; }
-        public string Value { get; }
-
         protected EnvironmentVariable(string name)
+            : base(name, EnvironmentVariableNotSetException.ThrowIfEmpty(name))
         {
-            var envvar = System.Environment.GetEnvironmentVariable(name)
-                ?? throw new EnvironmentVariableNotFoundException(name);
-
-            Name = name;
-            Value = envvar;
         }
     }
 }

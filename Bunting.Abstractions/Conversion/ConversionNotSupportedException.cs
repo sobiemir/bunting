@@ -1,14 +1,14 @@
-﻿using Bunting.Abstractions.Media;
+﻿using Bunting.Abstractions.File;
 
 namespace Bunting.Abstractions.Conversion
 {
-    public sealed class ConversionNotSupportedException(MediaFormat source, MediaFormat target)
-        : NotSupportedException($"Conversion from {source.MediaType} to {target.MediaType} is not supported.")
+    public sealed class ConversionNotSupportedException(FileExtension source, FileExtension target)
+        : NotSupportedException($"Conversion from '{source.Key}' to '{target.Key}' is not supported.")
     {
-        public string SourceMimeType { get; } = source.MediaType;
-        public string TargetMimeType { get; } = target.MediaType;
+        public string SourceMediaType { get; } = source.Key;
+        public string TargetMediaType { get; } = target.Key;
 
-        public ConversionNotSupportedException(ConversionFormat format)
+        public ConversionNotSupportedException(FileConversionDirection format)
             : this(format.Source, format.Target)
         {
         }

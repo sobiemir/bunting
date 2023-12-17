@@ -1,15 +1,12 @@
-﻿using Bunting.Abstractions.Conversion;
-using Bunting.Abstractions.Media;
+﻿using Bunting.Abstractions.File;
 
 namespace Bunting.Engines.Poppler
 {
     internal sealed class PopplerConfiguration
     {
-        public readonly static IList<ConversionFormat> Converters = new List<ConversionFormat>
+        public readonly static IList<FileConversionDirection> Converters = new List<FileConversionDirection>
         {
-            new (MediaFormat.PDF, MediaFormat.TIFF),
-            new (MediaFormat.PDF, MediaFormat.JPEG),
-            new (MediaFormat.PDF, MediaFormat.PNG)
+            new (FileExtension.PDF, FileExtension.PPM)
         };
     }
 }

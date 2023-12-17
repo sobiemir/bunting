@@ -9,6 +9,8 @@ namespace Bunting.Abstractions.Conversion
 
         public ConversionOptionsAbstract(ConversionOptionsDictionary options)
         {
+            ArgumentNullException.ThrowIfNull(options);
+
             _properties = GetType().GetProperties(BindingFlags.Public);
 
             AssignOptions(options);

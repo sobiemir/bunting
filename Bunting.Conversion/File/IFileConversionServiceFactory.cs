@@ -1,10 +1,10 @@
-﻿using Bunting.Abstractions.Conversion;
+﻿using Bunting.Abstractions.File;
 using Bunting.Abstractions.Interfaces;
 
 namespace Bunting.Conversion.File
 {
     public interface IFileConversionServiceFactory
     {
-        Task<IFileConversionService> CreateAsync(Stream sourceStream, ConversionFormat format, CancellationToken cancellationToken);
+        Task<IFileConversionService> CreateAsync(Stream sourceStream, FileConversionDirection format, CancellationToken cancellationToken);
     }
 }

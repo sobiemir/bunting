@@ -1,15 +1,19 @@
 ﻿using Bunting.Abstractions.Common;
 using Bunting.Abstractions.Conversion;
-using Bunting.Abstractions.Media;
+using Bunting.Abstractions.File;
 
 namespace Bunting.Conversion.Conversion
 {
     public interface IConversionFactory
     {
-        Task<IConversionEngine> CreateEngineAsync(Stream sourceStream, ConversionFormat format, ConversionOptionsDictionary options, CancellationToken cancellationToken);
-        Task<IConversionEngine> CreateEngineAsync(Stream sourceStream, MediaFormat source, MediaFormat target, ConversionOptionsDictionary options, CancellationToken cancellationToken);
+        Task<IConversionEngine> CreateEngineAsync(
+            Stream sourceStream,
+            FileExtension source,
+            FileExtension target,
+            ConversionOptionsDictionary options,
+            CancellationToken cancellationToken);
 
-        bool IsConversionSupported(MediaFormat source, MediaFormat target);
-        bool IsConversionSupported(ConversionFormat format);
+        bool IsConversionSupported(FileExtension source, FileExtension target);
+        bool IsConversionSupported(FileConversionDirection format);
     }
 }

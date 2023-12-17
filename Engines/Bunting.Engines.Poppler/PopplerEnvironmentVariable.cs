@@ -2,7 +2,7 @@
 
 namespace Bunting.Engines.Poppler
 {
-    internal sealed record PopplerEnvironmentVariable : EnvironmentVariable
+    internal sealed class PopplerEnvironmentVariable : EnvironmentVariable
     {
         public static readonly PopplerEnvironmentVariable BIN_POPPLER_PDFTOPPM = new(nameof(BIN_POPPLER_PDFTOPPM));
 

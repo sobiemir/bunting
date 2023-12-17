@@ -1,6 +1,6 @@
-﻿using Bunting.Abstractions.Conversion;
+﻿using Bunting.Abstractions.Environment;
+using Bunting.Abstractions.File;
 using Bunting.Abstractions.Interfaces;
-using Bunting.Abstractions.Media;
 
 namespace Bunting.Conversion.File
 {
@@ -8,49 +8,89 @@ namespace Bunting.Conversion.File
     {
         private readonly Guid _fileId;
 
-        private readonly string _temporaryDirectory;
+        private readonly EnvironmentVariable _tempDirectory;
         private readonly string _sourcePath;
+        private readonly string _sourcePathNoExtension;
         private readonly string _targetPath;
+        private readonly string _targetPathNoExtension;
 
-        private readonly ConversionFormat _conversionFormat;
+        private readonly FileConversionDirection _conversionDirection;
 
-        public FileConversionService(ConversionFormat format, string temporaryDirectory)
+        public FileConversionService(FileConversionDirection conversionDirection)
         {
+            ArgumentNullException.ThrowIfNull(conversionDirection);
+
             _fileId = Guid.NewGuid();
-            _temporaryDirectory = temporaryDirectory;
+            _tempDirectory = EnvironmentVariable.TMP_DIRECTORY;
 
-            var srcExtension = format.Source.Extension;
-            var dstExtension = format.Target.Extension;
+            var sourceExtension = conversionDirection.Source.Value;
+            var targetExtension = conversionDirection.Target.Value;
 
-            _sourcePath = $"{_temporaryDirectory}{Path.PathSeparator}{_fileId}-src.{srcExtension}";
-            _targetPath = $"{_temporaryDirectory}{Path.PathSeparator}{_fileId}-dst.{dstExtension}";
+            _sourcePathNoExtension = $"{_tempDirectory.Value}{Path.DirectorySeparatorChar}{_fileId}-src";
+            _sourcePath = $"{_sourcePathNoExtension}.{sourceExtension}";
+            _targetPathNoExtension = $"{_tempDirectory.Value}{Path.DirectorySeparatorChar}{_fileId}-dst";
+            _targetPath = $"{_targetPathNoExtension}.{targetExtension}";
 
-            _conversionFormat = format;
+            _conversionDirection = conversionDirection;
         }
 
-        public MediaFormat GetSourceMediaFormat()
+        public FileExtension GetSourceMediaFormat()
         {
-            return _conversionFormat.Source;
+            return _conversionDirection.Source;
         }
 
-        public MediaFormat GetTargetMediaFormat()
+        public FileExtension GetTargetMediaFormat()
         {
-            return _conversionFormat.Target;
+            return _conversionDirection.Target;
         }
 
-        public ConversionFormat GetConversionFormat()
+        public FileConversionDirection GetConversionFormat()
         {
-            return _conversionFormat;
+            return _conversionDirection;
         }
 
-        public string GetSourcePath()
+        public string GetSourcePath(bool withExtension = true)
         {
-            return _sourcePath;
+            return withExtension
+                ? _sourcePath
+                : _sourcePathNoExtension;
         }
 
-        public string GetTargetPath()
+        public string GetTargetPath(bool withExtension = true)
         {
-            return _targetPath;
+            return withExtension
+                ? _targetPath
+                : _targetPathNoExtension;
+        }
+
+        public void DeleteSource()
+        {
+            System.IO.File.Delete(_sourcePath);
+        }
+
+        public void DeleteTarget()
+        {
+            System.IO.File.Delete(_targetPath);
+        }
+
+        public async Task<MemoryStream> LoadAndDeleteTargetAsync(CancellationToken cancellationToken)
+        {
+            MemoryStream? memoryStream = null;
+
+            try
+            {
+                var fileStream = await System.IO.File.ReadAllBytesAsync(_targetPath, cancellationToken);
+                memoryStream = new MemoryStream(fileStream);
+                DeleteTarget();
+            }
+            catch
+            {
+                memoryStream?.Dispose();
+                throw;
+            }
+
+            return memoryStream
+                ?? throw new NullReferenceException();
         }
     }
 }

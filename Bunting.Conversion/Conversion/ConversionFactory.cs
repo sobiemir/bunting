@@ -1,6 +1,6 @@
 ﻿using Bunting.Abstractions.Common;
 using Bunting.Abstractions.Conversion;
-using Bunting.Abstractions.Media;
+using Bunting.Abstractions.File;
 using Bunting.Conversion.Conversion;
 using Bunting.Conversion.File;
 using Bunting.Engines.Poppler;
@@ -9,7 +9,7 @@ namespace Bunting.Conversion
 {
     internal sealed class ConversionFactory : IConversionFactory
     {
-        private readonly Dictionary<ConversionFormat, IConversionFacade> _converters;
+        private readonly Dictionary<FileConversionDirection, IConversionFacade> _converters;
         private readonly IFileConversionServiceFactory _fcsFactory;
 
         public ConversionFactory(IFileConversionServiceFactory fcsFactory)
@@ -20,29 +20,29 @@ namespace Bunting.Conversion
             CollectConverters(new PopplerFacade());
         }
 
-        public async Task<IConversionEngine> CreateEngineAsync(Stream sourceStream, ConversionFormat format, ConversionOptionsDictionary options, CancellationToken cancellationToken)
+        public async Task<IConversionEngine> CreateEngineAsync(
+            Stream sourceStream,
+            FileExtension source,
+            FileExtension target,
+            ConversionOptionsDictionary options,
+            CancellationToken cancellationToken)
         {
+            var format = new FileConversionDirection(source, target);
+
             if (!_converters.TryGetValue(format, out IConversionFacade? facade))
                 throw new ConversionNotSupportedException(format);
 
             var service = await _fcsFactory.CreateAsync(sourceStream, format, cancellationToken);
-
             return facade.CreateEngine(service, options);
         }
 
-        public async Task<IConversionEngine> CreateEngineAsync(Stream sourceStream, MediaFormat source, MediaFormat target, ConversionOptionsDictionary options, CancellationToken cancellationToken)
+        public bool IsConversionSupported(FileExtension source, FileExtension target)
         {
-            var format = new ConversionFormat(source, target);
-            return await CreateEngineAsync(sourceStream, format, options, cancellationToken);
-        }
-
-        public bool IsConversionSupported(MediaFormat source, MediaFormat target)
-        {
-            var format = new ConversionFormat(source, target);
+            var format = new FileConversionDirection(source, target);
             return IsConversionSupported(format);
         }
 
-        public bool IsConversionSupported(ConversionFormat format)
+        public bool IsConversionSupported(FileConversionDirection format)
         {
             return _converters.ContainsKey(format);
         }

@@ -20,23 +20,7 @@ namespace Bunting.Api.Misc
             if (keyValuePairs.Count == 0)
                 return Task.CompletedTask;
 
-            var excludedProperties = new List<string>();
-            var containerType = bindingContext.ModelMetadata.ContainerType;
-
-            if (containerType is not null)
-            {
-                var conversionOptionsDictionaryType = typeof(ConversionOptionsDictionary);
-                var containerProperties = containerType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-                foreach (var property in containerProperties)
-                {
-                    if (property.PropertyType == conversionOptionsDictionaryType)
-                        continue;
-
-                    var camelCasePropertyName = char.ToLowerInvariant(property.Name[0]) + property.Name[1..];
-                    excludedProperties.Add(camelCasePropertyName);
-                }
-            }
+            var excludedProperties = GetExcludedProperties(bindingContext);
 
             foreach (var keyValuePair in keyValuePairs)
             {
@@ -55,6 +39,29 @@ namespace Bunting.Api.Misc
             bindingContext.Result = ModelBindingResult.Success(model);
 
             return Task.CompletedTask;
+        }
+
+        private static List<string> GetExcludedProperties(ModelBindingContext bindingContext)
+        {
+            var excludedProperties = new List<string>();
+            var containerType = bindingContext.ModelMetadata.ContainerType;
+
+            if (containerType is not null)
+            {
+                var conversionOptionsDictionaryType = typeof(ConversionOptionsDictionary);
+                var containerProperties = containerType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (var property in containerProperties)
+                {
+                    if (property.PropertyType == conversionOptionsDictionaryType)
+                        continue;
+
+                    var camelCasePropertyName = char.ToLowerInvariant(property.Name[0]) + property.Name[1..];
+                    excludedProperties.Add(camelCasePropertyName);
+                }
+            }
+
+            return excludedProperties;
         }
     }
 }

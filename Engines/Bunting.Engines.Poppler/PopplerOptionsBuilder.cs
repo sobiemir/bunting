@@ -3,7 +3,7 @@ using Bunting.Abstractions.Conversion;
 
 namespace Bunting.Engines.Poppler
 {
-    internal sealed class PopplerEngineOptionsBuilder(ConversionOptionsDictionary options)
+    internal sealed class PopplerOptionsBuilder(ConversionOptionsDictionary options)
         : ConversionOptionsAbstract(options)
     {
         public int Page { get; private set; } = 1;
