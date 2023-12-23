@@ -14,7 +14,7 @@ namespace Bunting.Engines.Poppler
 
         public string GetEngineName()
         {
-            return PopplerEngine.CONVERTER_NAME;
+            return PopplerConfiguration.CONVERTER_NAME;
         }
 
         public IConversionEngine CreateEngine(IFileConversionService fcService, ConversionOptionsDictionary options)

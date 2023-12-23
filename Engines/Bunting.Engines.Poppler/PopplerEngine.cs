@@ -9,8 +9,6 @@ namespace Bunting.Engines.Poppler
 {
     internal sealed class PopplerEngine : IConversionEngine
     {
-        public const string CONVERTER_NAME = "poppler";
-
         private readonly IFileConversionService _fcService;
         private readonly PopplerOptionsBuilder _optionsBuilder;
 
@@ -55,7 +53,7 @@ namespace Bunting.Engines.Poppler
                 throw new FileConversionException(
                     code: result.ExitCode,
                     message: stdErrBuffer.ToString(),
-                    engine: CONVERTER_NAME,
+                    engine: PopplerConfiguration.CONVERTER_NAME,
                     command: command.Value,
                     arguments: preparedCommand.Arguments);
             }
